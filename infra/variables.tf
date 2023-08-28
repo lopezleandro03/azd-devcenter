@@ -25,3 +25,8 @@ variable "github_repo" {
   description = "The name of the github repo"
   type        = string
 }
+
+variable "tenant_id" {
+  description = "The tenant id of the Azure subscription"
+  type        = string
+}

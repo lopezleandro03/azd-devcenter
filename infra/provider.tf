@@ -14,11 +14,28 @@ terraform {
       source  = "azure/azapi"
       version = "~>1.8.0"
     }
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "~> 2.15.0"
+    }
+    time = {
+      source  = "hashicorp/time"
+    }
+    null = {
+      source  = "hashicorp/null"
+    }
+    random = {
+      source  = "hashicorp/random"
+    }
   }
 }
 
 provider "azapi" {
   default_location = var.location
+}
+
+provider "azuread" {
+  tenant_id = var.tenant_id
 }
 
 # Enable features for azurerm
