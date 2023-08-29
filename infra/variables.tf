@@ -1,5 +1,3 @@
-# Input variables for the module
-
 variable "location" {
   description = "The supported Azure location where the resource deployed"
   type        = string
@@ -12,18 +10,20 @@ variable "environment_name" {
 
 variable "github_token" {
   description = "The github token to be used to access the github repo"
-  sensitive = true
+  sensitive   = true
   type        = string
 }
 
 variable "github_owner" {
   description = "The name of the github owner"
   type        = string
+  default     = "azure"
 }
 
 variable "github_repo" {
   description = "The name of the github repo"
   type        = string
+  default     = "deployment-environments"
 }
 
 variable "tenant_id" {

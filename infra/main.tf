@@ -1,23 +1,52 @@
 ##############################
-# random_string for k8s resources uniqueness
+# random_string for resource names uniqueness
 ##############################
 resource "random_string" "value" {
   length  = 3
-  upper = false
-  lower = true
+  upper   = false
+  lower   = true
   special = false
 }
 
+##############################
+# local variables
+# - Organization is used to define the DevCenter resource name
+# - Projects map is used to define the DevCenter projects. In this case we will model two teams as projects (Team-one, Team-two)
+# - Environment types map is used to define the DevCenter environment types which will then be used to create the environment type definitions on each project
+##############################
 locals {
-  tags                         = { azd-env-name : var.environment_name }
-  sha                          = base64encode(sha256("${var.environment_name}${var.location}${data.azurerm_client_config.current.subscription_id}"))
-  resource_token               = substr(replace(lower(local.sha), "[^A-Za-z0-9_]", ""), 0, 13)
-  organization                 = "contoso"
-  project                      = "k8s-multi-tenant"
+  organization = "cloudrocks"
+
+  projects = {
+    "Team-one-${random_string.value.result}" = {
+      name = "Team-one-${random_string.value.result}"
+      description = "Project used by Team-one to manage their environments"
+    },
+    "Team-two-${random_string.value.result}" = {
+      name = "Team-two-${random_string.value.result}"
+      description = "Project used by Team-two to manage their environments"
+    }
+  }
+
+  environment_types = {
+    "development" = {
+      name        = "et-development"
+      description = "Development environment"
+      target_subscription_id = data.azurerm_client_config.current.subscription_id
+    },
+    "sandbox" = {
+      name        = "et-sandbox"
+      description = "Sandbox environment"
+      target_subscription_id = data.azurerm_client_config.current.subscription_id
+    }
+  }
+
+  tags = { azd-env-name : var.environment_name }
+
 }
 
 ##############################
-# Create resource group
+# Resource group
 ##############################
 resource "azurerm_resource_group" "rg" {
   name     = "rg-${local.organization}-${random_string.value.result}"
@@ -28,61 +57,41 @@ resource "azurerm_resource_group" "rg" {
 }
 
 ##############################
-# Create user Managed Identity 
-##############################
-# resource "azurerm_user_assigned_identity" "umi_project" {
-#   name                = "umi-${local.resource_token}"
-#   location            = azurerm_resource_group.rg.location
-#   resource_group_name = azurerm_resource_group.rg.name
-# }
-
-##############################
-# Create dev center
+# DevCenter
 ##############################
 resource "azapi_resource" "devcenter" {
-  type = "Microsoft.DevCenter/devcenters@2023-04-01"
-  name = "dc-${local.organization}-${random_string.value.result}"
-  location = azurerm_resource_group.rg.location
+  type      = "Microsoft.DevCenter/devcenters@2023-04-01"
+  name      = "dc-${local.organization}-${random_string.value.result}"
+  location  = azurerm_resource_group.rg.location
   parent_id = azurerm_resource_group.rg.id
   identity {
-    type = "SystemAssigned"
-    identity_ids = [ ]
-    # type = "SystemAssigned, UserAssigned"
-    # identity_ids = [ azurerm_user_assigned_identity.umi_project.id ]
+    type         = "SystemAssigned"
+    identity_ids = [] # only used when type contains UserAssigned to reference the user assigned identity
   }
   body = jsonencode({
     properties = {}
   })
+
+  tags = { azd-env-name : var.environment_name }
 }
 
 ##############################
-# Create key vault
-# To store the GitHub token to connect to the GitHub repo (catalog)
+# Key vault
+# To store the GitHub token to connect to the GitHub repo that will act as our DevCenter catalog
 ##############################
 resource "azurerm_key_vault" "keyvault" {
-  name                = "akv-${local.resource_token}"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  sku_name            = "standard"
-  tenant_id           = data.azurerm_client_config.current.tenant_id
+  name                      = "akv-devcenter-${random_string.value.result}"
+  location                  = azurerm_resource_group.rg.location
+  resource_group_name       = azurerm_resource_group.rg.name
+  sku_name                  = "standard"
+  tenant_id                 = data.azurerm_client_config.current.tenant_id
   enable_rbac_authorization = true
+
+  tags = { azd-env-name : var.environment_name }
 }
 
 ##############################
-# Create RBAC Assignment
-#   - Identity: dev center user managed identity
-#   - Role: Owner
-#   - Scope: Subscription
-##############################
-# rbac dev center target sub owner uai
-# resource "azurerm_role_assignment" "devcenter_uai_sub_owner_uai" {
-#   scope                = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
-#   role_definition_name = "Owner"
-#   principal_id         = azurerm_user_assigned_identity.umi_project.principal_id
-# }
-
-##############################
-# Create RBAC Assignment
+# RBAC assignment: grant DevCenter system managed identity Owner access to the subscription
 #   - Identity: dev center system managed identity
 #   - Role: Owner
 #   - Scope: Subscription
@@ -94,7 +103,7 @@ resource "azurerm_role_assignment" "devcenter_sai_sub_owner_sai" {
 }
 
 ##############################
-# Create RBAC Assignment
+# RBAC assignment: grant Terraform admin access to the key vault secrets for resource's management
 #   - Identity: Terraform admin
 #   - Role: Key Vault Administrator
 #   - Scope: Key Vault
@@ -106,19 +115,7 @@ resource "azurerm_role_assignment" "tf_admin" {
 }
 
 ##############################
-# Create RBAC Assignment
-#   - Identity: dev center user managed identity
-#   - Role: Key Vault Secrets User
-#   - Scope: Key Vault
-##############################
-# resource "azurerm_role_assignment" "devcenter_uai_keyvault_secret_reader" {
-#   scope                = azurerm_key_vault.keyvault.id
-#   role_definition_name = "Key Vault Secrets User"
-#   principal_id         = azurerm_user_assigned_identity.umi_project.principal_id
-# }
-
-##############################
-# Create RBAC Assignment
+# RBAC assignment: grant DevCenter system managed identity Key Vault Secrets User access to the key vault
 #   - Identity: dev center system managed identity
 #   - Role: Key Vault Secrets User
 #   - Scope: Key Vault
@@ -130,45 +127,47 @@ resource "azurerm_role_assignment" "devcenter_sai_keyvault_secret_reader" {
 }
 
 ##############################
-# Create Key Vault Secret
+# Key Vault Secret: add GitHub token as secret
 ##############################
 resource "azurerm_key_vault_secret" "github_token" {
   name         = "github-token"
   value        = var.github_token
   key_vault_id = azurerm_key_vault.keyvault.id
 
-  depends_on = [ 
-    azurerm_role_assignment.devcenter_sai_keyvault_secret_reader, 
+  depends_on = [
+    azurerm_role_assignment.devcenter_sai_keyvault_secret_reader,
     # azurerm_role_assignment.devcenter_uai_keyvault_secret_reader, 
-    azurerm_role_assignment.tf_admin 
+    azurerm_role_assignment.tf_admin
   ]
 }
 
 ##############################
-# Create dev center catalog
+# DevCenter Catalog
 ##############################
 resource "azapi_resource" "default_catalog" {
-  type = "Microsoft.DevCenter/devcenters/catalogs@2023-04-01"
-  name = "catalog-${local.organization}-${random_string.value.result}"
+  type      = "Microsoft.DevCenter/devcenters/catalogs@2023-04-01"
+  name      = "catalog-${local.organization}-${random_string.value.result}"
   parent_id = azapi_resource.devcenter.id
   body = jsonencode({
     properties = {
       gitHub = {
-        branch = "main"
-        path = ""
+        branch           = "main"
+        path             = ""
         secretIdentifier = azurerm_key_vault_secret.github_token.id
-        uri = "https://github.com/${var.github_owner}/${var.github_repo}.git"
+        uri              = "https://github.com/${var.github_owner}/${var.github_repo}.git"
       }
     }
   })
 }
 
 ##############################
-# Create dev center environment type
+# DevCenter environment types
 ##############################
-resource "azapi_resource" "environment_type_dev" {
-  type = "Microsoft.DevCenter/devcenters/environmentTypes@2023-04-01"
-  name = "et-development"
+resource "azapi_resource" "environment_type" {
+  for_each = local.environment_types
+
+  type      = "Microsoft.DevCenter/devcenters/environmentTypes@2023-04-01"
+  name      = each.value.name
   parent_id = azapi_resource.devcenter.id
   body = jsonencode({
     properties = {}
@@ -176,108 +175,17 @@ resource "azapi_resource" "environment_type_dev" {
 }
 
 ##############################
-# Create dev center project
+# DevCenter Projects
 ##############################
-resource "azapi_resource" "project" {
-  type = "Microsoft.DevCenter/projects@2023-04-01"
-  name = "pr-${local.project}-${random_string.value.result}"
-  location = azurerm_resource_group.rg.location
-  parent_id = azurerm_resource_group.rg.id
-  body = jsonencode({
-    properties = {
-      description = "Project for Kubernetes multi-tenant as a service"
-      devCenterId = azapi_resource.devcenter.id
-      maxDevBoxesPerUser = 1
-    }
-  })
+module "project" {
+  for_each = local.projects
+
+  source              = "./modules/devcenter_project"
+  resource_group_id   = azurerm_resource_group.rg.id
+  location            = azurerm_resource_group.rg.location
+  devcenter_id        = azapi_resource.devcenter.id
+  project_name        = each.value.name
+  project_description = each.value.name
+  environment_types   = local.environment_types
+  current_user        = data.azurerm_client_config.current.object_id
 }
-
-##############################
-# Create dev center project environment type definition
-##############################
-resource "azapi_resource" "environment_type_dev_definition" {
-  type = "Microsoft.DevCenter/projects/environmentTypes@2023-04-01"
-  name = azapi_resource.environment_type_dev.name
-  location = azurerm_resource_group.rg.location
-  parent_id = azapi_resource.project.id
-  identity {
-    type = "SystemAssigned"
-    # identity_ids = [azurerm_user_assigned_identity.umi_project.id]
-    identity_ids = []
-  }
-  body = jsonencode({
-    properties = {
-      # creatorRoleAssignment = {
-      #   roles = {"Owner" = []}
-      # }
-      deploymentTargetId = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
-      status = "Enabled"
-      # userRoleAssignments = {}
-    }
-  })
-
-  depends_on = [ azapi_resource.environment_type_dev ]
-}
-
-# Wait for environment type dev definition to be created and managed identity replicated
-resource "time_sleep" "wait_30_seconds" {
-  depends_on = [azapi_resource.environment_type_dev_definition]
-
-  create_duration = "30s"
-}
-
-# lookup principal id for the project smi
-data "azuread_service_principal" "environment_type_smi" {
-  display_name = "${azapi_resource.project.name}/environmentTypes/${azapi_resource.environment_type_dev.name}"
-
-  depends_on = [ time_sleep.wait_30_seconds ]
-}
-
-
-##############################
-# Create RBAC Assignment
-#   - Identity: dev center project smi
-#   - Role: Key Vault Secrets User
-#   - Scope: Key Vault
-##############################
-resource "azurerm_role_assignment" "project_keyvault_secret_reader" {
-  scope                = azurerm_key_vault.keyvault.id
-  role_definition_name = "Key Vault Secrets User"
-  principal_id         = data.azuread_service_principal.environment_type_smi.object_id
-}
-
-##############################
-# Create RBAC Assignment
-#   - Identity: dev center project smi
-#   - Role: Owner
-#   - Scope: Subscription
-##############################
-resource "azurerm_role_assignment" "project_owner_sub" {
-  scope                = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
-  role_definition_name = "Owner"
-  principal_id         = data.azuread_service_principal.environment_type_smi.object_id
-}
-
-##############################
-# Allow Environment Type on project
-##############################
-data "azapi_resource" "allowed_env_types" {
-  type = "Microsoft.DevCenter/projects/allowedEnvironmentTypes@2023-04-01"
-  name = azapi_resource.environment_type_dev.name
-  parent_id = azapi_resource.project.id
-
-  depends_on = [ azapi_resource.environment_type_dev_definition ]
-}
-
-##############################
-# Create RBAC Assignment
-#   - Identity: Terraform admin (a developer identity could be used instead)
-#   - Role: Deployment Environments User
-#   - Scope: Project
-##############################
-resource "azurerm_role_assignment" "devcenter_environment_user" {
-  scope                = azapi_resource.project.id
-  role_definition_name = "Deployment Environments User"
-  principal_id         = data.azurerm_client_config.current.object_id
-}
-

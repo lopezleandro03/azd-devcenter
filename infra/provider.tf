@@ -19,13 +19,13 @@ terraform {
       version = "~> 2.15.0"
     }
     time = {
-      source  = "hashicorp/time"
+      source = "hashicorp/time"
     }
     null = {
-      source  = "hashicorp/null"
+      source = "hashicorp/null"
     }
     random = {
-      source  = "hashicorp/random"
+      source = "hashicorp/random"
     }
   }
 }
