@@ -2,7 +2,7 @@
 
 Azure Deployment Environments empowers development teams to quickly and easily spin up app infrastructure with project-based templates that establish consistency and best practices while maximizing security. This on-demand access to secure environments accelerates the stages of the software development lifecycle in a compliant and cost-efficient way.
 
-![Diagram](assets\azure-deployment-environments-diagram.png)
+![Diagram](./assets/azure-deployment-environments-diagram.png)
 
 ## Overview
 
@@ -34,19 +34,22 @@ This repo uses the Azure Developer CLI to bootstrap a DevCenter resource with th
 
 1. Define the following environment variables to define your DevCenter catalog as a GitHub repository. The DevCenter catalog is a GitHub repository that contains the environment templates.
 
+
+Bash:
 ```bash
 export GITHUB_TOKEN=<your_github_token>
 export GIT_OWNER=<git_owner>
 export GIT_REPO=<git_repo>
 ```
 
+PowerShell:
 ```PowerShell
 $env:GITHUB_TOKEN="<your_github_token>"
 $env:GIT_OWNER="<git_owner>"
 $env:GIT_REPO="<git_repo>"
 ```
 
-2. Run 'azd up' from the root of this repository and follow the prompts to bootstrap your DevCenter.
+2. Run `azd up` from the root folder of this repository and follow the prompts to bootstrap your DevCenter.
 3. Go to the [Developer Portal](https://devportal.microsoft.com) and start creating environments.
 
 > Note: If you used the [Azure official repo for Azure Deployment Environments](https://github.com/Azure/deployment-environments) as your DevCenter catalog, then you should be able to deploy sample environments already. Otherwise, you should start defining your own environments.
