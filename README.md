@@ -28,25 +28,25 @@ This repo uses the Azure Developer CLI to bootstrap a DevCenter resource with th
 1. [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 2. [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/)
 3. [Terraform CLI](https://learn.hashicorp.com/tutorials/terraform/install-cli)
-4. An Azure subscription with at least `Contributor` RBAC role assigned to the deployment identity
+4. An Azure subscription with at least `Owner` RBAC role assigned to the deployment identity
 
 ## Getting Started
 
-1. Define the following environment variables which will be used to link a GitHub repository as a DevCenter catalog. The catalog is the repository that contains the environment definitions as infrastructure as code templates. Use the [Azure official repo for Azure Deployment Environments](https://github.com/Azure/deployment-environments) to get some sample environments imported as catalog items from the get go.
+1. Define the following environment variables which will be used to link a GitHub repository as a DevCenter catalog. The catalog is the repository that contains the environment definitions as infrastructure as code templates. Use the [Azure official repo for Azure Deployment Environments](https://github.com/Azure/deployment-environments) to import sample environments.
 
 ```bash
 # Bash
 export GITHUB_TOKEN=<your_github_token>
-export GIT_OWNER=<git_owner>
-export GIT_REPO=<git_repo>
+export GIT_OWNER=<git_owner> # Use 'Azure' to use Microsoft official catalog
+export GIT_REPO=<git_repo> # Use 'deployment-environments' to use Microsoft official catalog
 ```
 
 PowerShell:
 ```PowerShell
 # PowerShell
 $env:GITHUB_TOKEN="<your_github_token>"
-$env:GIT_OWNER="<git_owner>"
-$env:GIT_REPO="<git_repo>"
+$env:GIT_OWNER="<git_owner>" # Use 'Azure' to use Microsoft official catalog
+$env:GIT_REPO="<git_repo>" # Use 'deployment-environments' to use Microsoft official catalog
 ```
 
 2. Run `azd up` from the root folder of this repository and follow the prompts to bootstrap your DevCenter.
@@ -56,6 +56,10 @@ $env:GIT_REPO="<git_repo>"
 
 - [Azure Deployment Environments Docs](https://learn.microsoft.com/en-us/azure/deployment-environments/overview-what-is-azure-deployment-environments)
 - [Azure Deployment Environments GitHub repo](link_to_sample_templates_repository)
+
+## Contributing
+
+This project welcomes contributions and suggestions. Submit a pull request with your changes!
 
 ## License
 
