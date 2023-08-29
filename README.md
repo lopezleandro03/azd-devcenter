@@ -14,7 +14,7 @@ With Azure Deployment Environments, your platform engineer can enforce enterpris
 
 Learn more about the [key concepts for Azure Deployment Environments](https://learn.microsoft.com/en-us/azure/deployment-environments/overview-what-is-azure-deployment-environments).
 
-This repo uses the Azure Developer CLI to bootstrap a DevCenter resource with the minimal configuraiton required to start using Azure Deployment Environments. That includes:
+This repo uses the Azure Developer CLI to bootstrap a DevCenter resource with the minimun configuration required to start using Azure Deployment Environments. That includes:
 
 - A resource group
 - An Azure DevCenter resource
@@ -32,7 +32,7 @@ This repo uses the Azure Developer CLI to bootstrap a DevCenter resource with th
 
 ## Getting Started
 
-1. Define the following environment variables to define your DevCenter catalog as a GitHub repository. The DevCenter catalog is a GitHub repository that contains the environment templates.
+1. Define the following environment variables which will be used to link a GitHub repository as a DevCenter catalog. The catalog is the repository that contains the environment definitions as infrastructure as code templates. Use the [Azure official repo for Azure Deployment Environments](https://github.com/Azure/deployment-environments) to get some sample environments imported as catalog items from the get go.
 
 ```bash
 # Bash
@@ -51,8 +51,6 @@ $env:GIT_REPO="<git_repo>"
 
 2. Run `azd up` from the root folder of this repository and follow the prompts to bootstrap your DevCenter.
 3. Go to the [Developer Portal](https://devportal.microsoft.com) and start creating environments.
-
-> Note: If you use the [Azure official repo for Azure Deployment Environments](https://github.com/Azure/deployment-environments) as your DevCenter catalog, then you should be able to deploy sample environments already. Otherwise, you should start defining your own environments.
 
 ## Resources
 
