@@ -30,7 +30,7 @@ This repo uses the Azure Developer CLI to bootstrap a DevCenter resource with th
 3. [Terraform CLI](https://learn.hashicorp.com/tutorials/terraform/install-cli)
 4. An Azure subscription with at least `Owner` RBAC role assigned to the deployment identity
 
-## Getting Started
+## Deploy with Azure Developer CLI
 
 1. Define the following environment variables which will be used to link a GitHub repository as a DevCenter catalog. The catalog is the repository that contains the environment definitions as infrastructure as code templates. Use the [Azure official repo for Azure Deployment Environments](https://github.com/Azure/deployment-environments) to import sample environments.
 
@@ -61,6 +61,6 @@ $env:GIT_REPO="<git_repo>" # Use 'deployment-environments' to use Microsoft offi
 
 This project welcomes contributions and suggestions. Submit a pull request with your changes!
 
-## License
+## Issues & Feedback
 
-This project is licensed under the [MIT License](link_to_license_file).
+If you have any feature requests, issues, or areas for improvement, please file an issue.
