@@ -15,14 +15,14 @@ resource "random_string" "value" {
 # - Environment types map is used to define the DevCenter environment types which will then be used to create the environment type definitions on each project
 ##############################
 locals {
-  organization = "cloudrocks"
+  organization = "cloudyjourney"
 
   projects = {
-    "Team-one-${random_string.value.result}" = {
+    "Team-one" = {
       name = "Team-one-${random_string.value.result}"
       description = "Project used by Team-one to manage their environments"
     },
-    "Team-two-${random_string.value.result}" = {
+    "Team-two" = {
       name = "Team-two-${random_string.value.result}"
       description = "Project used by Team-two to manage their environments"
     }
