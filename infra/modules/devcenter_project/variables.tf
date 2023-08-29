@@ -36,3 +36,9 @@ variable "current_user" {
     type = string
     description = "The name of the current user."
 }
+
+variable "make_current_user_ade_user" {
+    type = bool
+    default = true
+    description = "Whether to make the current user a Deployment Environments User on the project."
+}
