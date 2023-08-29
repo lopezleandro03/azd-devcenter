@@ -40,16 +40,3 @@ steps:
       RS_RESOURCE_GROUP: $(RS_RESOURCE_GROUP)
       RS_STORAGE_ACCOUNT: $(RS_STORAGE_ACCOUNT)
       RS_CONTAINER_NAME: $(RS_CONTAINER_NAME)
-
-  - task: AzureCLI@2
-    displayName: Deploy Application
-    inputs:
-      azureSubscription: azconnection
-      scriptType: bash
-      scriptLocation: inlineScript
-      inlineScript: |
-        azd deploy --no-prompt
-    env:
-      AZURE_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
-      AZURE_ENV_NAME: $(AZURE_ENV_NAME)
-      AZURE_LOCATION: $(AZURE_LOCATION)

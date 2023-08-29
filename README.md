@@ -28,15 +28,14 @@ This repo uses the Azure Developer CLI to bootstrap a DevCenter resource with th
 1. [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 2. [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/)
 3. [Terraform CLI](https://learn.hashicorp.com/tutorials/terraform/install-cli)
-4. An Azure subscription with Owner permissions
+4. An Azure subscription with at least `Contributor` RBAC role assigned to the deployment identity
 
 ## Getting Started
 
 1. Define the following environment variables to define your DevCenter catalog as a GitHub repository. The DevCenter catalog is a GitHub repository that contains the environment templates.
 
-
-Bash:
 ```bash
+# Bash
 export GITHUB_TOKEN=<your_github_token>
 export GIT_OWNER=<git_owner>
 export GIT_REPO=<git_repo>
@@ -44,6 +43,7 @@ export GIT_REPO=<git_repo>
 
 PowerShell:
 ```PowerShell
+# PowerShell
 $env:GITHUB_TOKEN="<your_github_token>"
 $env:GIT_OWNER="<git_owner>"
 $env:GIT_REPO="<git_repo>"
@@ -52,11 +52,11 @@ $env:GIT_REPO="<git_repo>"
 2. Run `azd up` from the root folder of this repository and follow the prompts to bootstrap your DevCenter.
 3. Go to the [Developer Portal](https://devportal.microsoft.com) and start creating environments.
 
-> Note: If you used the [Azure official repo for Azure Deployment Environments](https://github.com/Azure/deployment-environments) as your DevCenter catalog, then you should be able to deploy sample environments already. Otherwise, you should start defining your own environments.
+> Note: If you use the [Azure official repo for Azure Deployment Environments](https://github.com/Azure/deployment-environments) as your DevCenter catalog, then you should be able to deploy sample environments already. Otherwise, you should start defining your own environments.
 
 ## Resources
 
-- [Azure Deployment Environments Docs](https://learn.microsoft.com/en-us/azure/deployment-environments/overview-what-is-azure-deployment-environments).
+- [Azure Deployment Environments Docs](https://learn.microsoft.com/en-us/azure/deployment-environments/overview-what-is-azure-deployment-environments)
 - [Azure Deployment Environments GitHub repo](link_to_sample_templates_repository)
 
 ## License
