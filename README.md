@@ -4,15 +4,15 @@ Azure Deployment Environments empowers development teams to quickly and easily s
 
 ![Diagram](./assets/azure-deployment-environments-diagram.png)
 
+Learn more about the [key concepts for Azure Deployment Environments](https://learn.microsoft.com/en-us/azure/deployment-environments/overview-what-is-azure-deployment-environments).
+
 ## Overview
 
 A deployment environment is a preconfigured collection of Azure resources deployed in predefined subscriptions. Azure governance is applied to those subscriptions based on the type of environment, such as sandbox, testing, staging, or production.
 
 With Azure Deployment Environments, your platform engineer can enforce enterprise security policies and provide a curated set of predefined infrastructure as code (IaC) templates.
 
-> Note: Azure Deployment Environments currently supports only Azure Resource Manager (ARM) templates and Terraform (Private Preview)
-
-Learn more about the [key concepts for Azure Deployment Environments](https://learn.microsoft.com/en-us/azure/deployment-environments/overview-what-is-azure-deployment-environments).
+> Note: Azure Deployment Environments currently supports only Azure Resource Manager (ARM) templates and Terraform (Private Preview).
 
 This repo uses the Azure Developer CLI to bootstrap a DevCenter resource with the minimun configuration required to start using Azure Deployment Environments. That includes:
 
@@ -23,7 +23,13 @@ This repo uses the Azure Developer CLI to bootstrap a DevCenter resource with th
 - Sample DevCenter projects (Team-one, Team-two)
 - Projects environment types definitions (development, sandbox)
 
+All azure resources are defined as code using Terraform, the environment definition can be found in the `infra` folder.
+
+Let's get started!
+
 ## Pre-requisites
+
+Make sure you have the following tools installed:
 
 1. [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 2. [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/)
@@ -32,7 +38,7 @@ This repo uses the Azure Developer CLI to bootstrap a DevCenter resource with th
 
 ## Deploy with Azure Developer CLI
 
-1. Define the following environment variables which will be used to link a GitHub repository as a DevCenter catalog. The catalog is the repository that contains the environment definitions as infrastructure as code templates. Use the [Azure official repo for Azure Deployment Environments](https://github.com/Azure/deployment-environments) to import sample environments.
+1. Define the following environment variables which will be used to link a GitHub repository as a DevCenter catalog. A catalog is the repository that contains the environment definitions as infrastructure as code templates. Use the [Azure official repo for Azure Deployment Environments](https://github.com/Azure/deployment-environments) to import sample environments.
 
 ```bash
 # Bash
