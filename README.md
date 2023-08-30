@@ -21,9 +21,11 @@ This repo will deploy several Azure resources and configure DevCenter to let you
 - A resource group
 - An Azure DevCenter resource
 - An Azure Key Vault resource to store the GitHub token to connect to the catalog
-- Sample DevCenter environment types (development, sandbox)
-- Sample DevCenter projects (Team-one, Team-two)
+- Sample DevCenter environment types (development, sandbox, etc.)
+- Sample DevCenter projects (Team-one, Team-two, etc.)
 - Projects environment types definitions (development, sandbox)
+
+The projects and environments defined serve as inspiration to start using Azure Deployment Environments, you can delete them and create your own.
 
 All azure resources are defined as code using Terraform, the environment definition can be found in the `infra` folder.
 
