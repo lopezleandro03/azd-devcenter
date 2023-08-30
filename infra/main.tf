@@ -19,26 +19,39 @@ locals {
 
   projects = {
     "Team-one" = {
-      name = "Team-one-${random_string.value.result}"
+      name        = "Team-one-${random_string.value.result}"
       description = "Project used by Team-one to manage their environments"
+      members     = [data.azurerm_client_config.current.object_id] # make the current user a member of the project, add your devs here
     },
     "Team-two" = {
-      name = "Team-two-${random_string.value.result}"
+      name        = "Team-two-${random_string.value.result}"
       description = "Project used by Team-two to manage their environments"
+      members     = [data.azurerm_client_config.current.object_id] # make the current user a member of the project, add your devs here
+    },
+    "Team-three" = {
+      name        = "Team-three-${random_string.value.result}"
+      description = "Project used by Team-three to manage their environments"
+      members     = [data.azurerm_client_config.current.object_id] # make the current user a member of the project, add your devs here
     }
   }
 
+  # TODO: add ability to specify creator roles, user role assignments and user managed identities
   environment_types = {
     "development" = {
-      name        = "et-development"
-      description = "Development environment"
+      name                   = "et-development"
+      description            = "Development environment"
       target_subscription_id = data.azurerm_client_config.current.subscription_id
     },
     "sandbox" = {
-      name        = "et-sandbox"
-      description = "Sandbox environment"
+      name                   = "et-sandbox"
+      description            = "Sandbox environment"
       target_subscription_id = data.azurerm_client_config.current.subscription_id
-    }
+    },
+    "ephemeral-24hs" = {
+      name                   = "et-ephemeral-24hs"
+      description            = "This environment type will destroy environments after 24hs" # This automation could be set using GitHub Actions and the Azure CLI for DevCenter.
+      target_subscription_id = data.azurerm_client_config.current.subscription_id
+    },
   }
 
   tags = { azd-env-name : var.environment_name }
@@ -103,18 +116,6 @@ resource "azurerm_role_assignment" "devcenter_sai_sub_owner_sai" {
 }
 
 ##############################
-# RBAC assignment: grant Terraform admin access to the key vault secrets for resource's management
-#   - Identity: Terraform admin
-#   - Role: Key Vault Administrator
-#   - Scope: Key Vault
-##############################
-resource "azurerm_role_assignment" "tf_admin" {
-  scope                = azurerm_key_vault.keyvault.id
-  role_definition_name = "Key Vault Administrator"
-  principal_id         = data.azurerm_client_config.current.object_id
-}
-
-##############################
 # RBAC assignment: grant DevCenter system managed identity Key Vault Secrets User access to the key vault
 #   - Identity: dev center system managed identity
 #   - Role: Key Vault Secrets User
@@ -124,6 +125,18 @@ resource "azurerm_role_assignment" "devcenter_sai_keyvault_secret_reader" {
   scope                = azurerm_key_vault.keyvault.id
   role_definition_name = "Key Vault Secrets User"
   principal_id         = azapi_resource.devcenter.identity[0].principal_id
+}
+
+##############################
+# RBAC assignment: grant Terraform admin access to the key vault secrets for resource's management
+#   - Identity: Terraform admin
+#   - Role: Key Vault Administrator
+#   - Scope: Key Vault
+##############################
+resource "azurerm_role_assignment" "tf_admin" {
+  scope                = azurerm_key_vault.keyvault.id
+  role_definition_name = "Key Vault Administrator"
+  principal_id         = data.azurerm_client_config.current.object_id
 }
 
 ##############################
@@ -186,6 +199,6 @@ module "project" {
   devcenter_id        = azapi_resource.devcenter.id
   project_name        = each.value.name
   project_description = each.value.name
+  project_members     = each.value.members
   environment_types   = local.environment_types
-  current_user        = data.azurerm_client_config.current.object_id
 }

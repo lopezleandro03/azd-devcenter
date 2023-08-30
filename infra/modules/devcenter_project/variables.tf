@@ -23,6 +23,11 @@ variable "project_description" {
     description = "The description of the Dev Center project."
 }
 
+variable "project_members" {
+    type = list(string)
+    description = "The members of the Dev Center project."
+}
+
 variable "environment_types" {
     type = map(object({
         name = string
@@ -30,15 +35,4 @@ variable "environment_types" {
         target_subscription_id = string
     }))
     description = "The environment types to create on the Dev Center project."
-}
-
-variable "current_user" {
-    type = string
-    description = "The name of the current user."
-}
-
-variable "make_current_user_ade_user" {
-    type = bool
-    default = true
-    description = "Whether to make the current user a Deployment Environments User on the project."
 }
