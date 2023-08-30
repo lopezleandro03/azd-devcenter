@@ -30,15 +30,15 @@ module "environment_type_definition" {
 }
 
 ##############################
-# Create RBAC Assignment: grant current user access to the DevCenter project
-#   - Identity: Terraform admin (a developer identity could be used instead)
+# Create RBAC Assignment: grant project memebers access to the DevCenter project
+#   - Identity: each project member define in root main.tf
 #   - Role: Deployment Environments User
 #   - Scope: Project
 ##############################
 resource "azurerm_role_assignment" "devcenter_environment_user" {
-  count = var.make_current_user_ade_user ? 1 : 0
+  for_each = toset(var.project_members)
 
   scope                = azapi_resource.project.id
   role_definition_name = "Deployment Environments User"
-  principal_id         = var.current_user
+  principal_id         = each.key
 }
