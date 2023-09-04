@@ -25,9 +25,9 @@ resource "azurerm_role_assignment" "rbac_assignments" {
 }
 
 ##############################
-# Wait for RBAC replication before creating secrets
+# Wait for RBAC propagation
 ##############################
-resource "time_sleep" "wait_30_seconds" {
+resource "time_sleep" "rbac_propagation" {
   depends_on = [ azurerm_role_assignment.rbac_assignments ]
 
   create_duration = "30s"
@@ -42,4 +42,6 @@ resource "azurerm_key_vault_secret" "secrets" {
   name         = each.key
   value        = each.value.value
   key_vault_id = azurerm_key_vault.key_vault.id
+
+  depends_on = [ time_sleep.rbac_propagation ]
 }
