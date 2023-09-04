@@ -3,5 +3,11 @@
 name: devcenter-ade-starter
 metadata:
   template: devcenter-ade-starter@0.0.1-beta
+hooks:
+  preprovision:
+    windows:
+      run: ./hooks/preprovision.ps1
+    posix:
+      run: ./hooks/preprovision.sh
 infra:
   provider: terraform
