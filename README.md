@@ -46,17 +46,17 @@ Make sure you have the following tools installed:
 
 ```bash
 # Bash
-export GITHUB_TOKEN=<your_github_token>
-export GITHUB_OWNER=<git_owner> # Use 'Azure' to use Microsoft official catalog
-export GITHUB_REPO=<git_repo> # Use 'deployment-environments' to use Microsoft official catalog
+export GITHUB_TOKEN=<github_token>
+export GITHUB_OWNER=<github_owner> # Use 'Azure' to use Microsoft official catalog
+export GITHUB_REPO=<github_repo> # Use 'deployment-environments' to use Microsoft official catalog
 ```
 
 PowerShell:
 ```PowerShell
 # PowerShell
-$env:GITHUB_TOKEN="<your_github_token>"
-$env:GITHUB_OWNER="<git_owner>" # Use 'Azure' to use Microsoft official catalog
-$env:GITHUB_REPO="<git_repo>" # Use 'deployment-environments' to use Microsoft official catalog
+$env:GITHUB_TOKEN="<github_token>"
+$env:GITHUB_OWNER="<github_owner>" # Use 'Azure' to use Microsoft official catalog
+$env:GITHUB_REPO="<github_repo>" # Use 'deployment-environments' to use Microsoft official catalog
 ```
 
 2. Run `azd up` from the root folder of this repository and follow the prompts to bootstrap your DevCenter.
