@@ -66,7 +66,7 @@ resource "azurerm_resource_group" "rg" {
   location = var.location
   // Tag the resource group with the azd environment name
   // This should also be applied to all resources created in this module
-  tags = { azd-env-name : var.environment_name }
+  tags = local.tags
 }
 
 ##############################
@@ -85,22 +85,51 @@ resource "azapi_resource" "devcenter" {
     properties = {}
   })
 
-  tags = { azd-env-name : var.environment_name }
+  tags = local.tags
+}
+
+##############################
+# Enable logging 
+##############################
+module "logging" {
+  source              = "./modules/devcenter_logging"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  devcenter_id        = azapi_resource.devcenter.id
+  law_name            = "law-${local.organization}-${random_string.value.result}"
+  tags                = local.tags
 }
 
 ##############################
 # Key vault
 # To store the GitHub token to connect to the GitHub repo that will act as our DevCenter catalog
 ##############################
-resource "azurerm_key_vault" "keyvault" {
-  name                      = "akv-devcenter-${random_string.value.result}"
-  location                  = azurerm_resource_group.rg.location
-  resource_group_name       = azurerm_resource_group.rg.name
-  sku_name                  = "standard"
-  tenant_id                 = data.azurerm_client_config.current.tenant_id
-  enable_rbac_authorization = true
+module "key_vault" {
+  source              = "./modules/devcenter_key_vault"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  key_vault_name      = "kv-${local.organization}-${random_string.value.result}"
+  tags                = local.tags
 
-  tags = { azd-env-name : var.environment_name }
+  rbac_assignments = {
+    "azd-devcenter-sai" = {
+      description          = "Grant DevCenter system managed identity Key Vault Secrets User access to the key vault"
+      role_definition_name = "Key Vault Secrets User"
+      principal_id         = azapi_resource.devcenter.identity[0].principal_id
+    },
+    "azd-terraform-admin" = {
+      description          = "Grant Terraform admin access to the key vault secrets for resource's management"
+      role_definition_name = "Key Vault Administrator"
+      principal_id         = data.azurerm_client_config.current.object_id
+    }
+  }
+
+  secrets = {
+    "github-token" = {
+      description = "The GitHub token to connect to the GitHub repo that will act as our DevCenter catalog"
+      value       = var.github_token
+    }
+  }
 }
 
 ##############################
@@ -116,42 +145,13 @@ resource "azurerm_role_assignment" "devcenter_sai_sub_owner_sai" {
 }
 
 ##############################
-# RBAC assignment: grant DevCenter system managed identity Key Vault Secrets User access to the key vault
-#   - Identity: dev center system managed identity
-#   - Role: Key Vault Secrets User
-#   - Scope: Key Vault
+# GitHub token ref
 ##############################
-resource "azurerm_role_assignment" "devcenter_sai_keyvault_secret_reader" {
-  scope                = azurerm_key_vault.keyvault.id
-  role_definition_name = "Key Vault Secrets User"
-  principal_id         = azapi_resource.devcenter.identity[0].principal_id
-}
-
-##############################
-# RBAC assignment: grant Terraform admin access to the key vault secrets for resource's management
-#   - Identity: Terraform admin
-#   - Role: Key Vault Administrator
-#   - Scope: Key Vault
-##############################
-resource "azurerm_role_assignment" "tf_admin" {
-  scope                = azurerm_key_vault.keyvault.id
-  role_definition_name = "Key Vault Administrator"
-  principal_id         = data.azurerm_client_config.current.object_id
-}
-
-##############################
-# Key Vault Secret: add GitHub token as secret
-##############################
-resource "azurerm_key_vault_secret" "github_token" {
+data "azurerm_key_vault_secret" "github_token" {
   name         = "github-token"
-  value        = var.github_token
-  key_vault_id = azurerm_key_vault.keyvault.id
+  key_vault_id = module.key_vault.key_vault_id
 
-  depends_on = [
-    azurerm_role_assignment.devcenter_sai_keyvault_secret_reader,
-    # azurerm_role_assignment.devcenter_uai_keyvault_secret_reader, 
-    azurerm_role_assignment.tf_admin
-  ]
+  depends_on = [ module.key_vault ]
 }
 
 ##############################
@@ -166,7 +166,7 @@ resource "azapi_resource" "default_catalog" {
       gitHub = {
         branch           = "main"
         path             = ""
-        secretIdentifier = azurerm_key_vault_secret.github_token.id
+        secretIdentifier = data.azurerm_key_vault_secret.github_token.id
         uri              = "https://github.com/${var.github_owner}/${var.github_repo}.git"
       }
     }
