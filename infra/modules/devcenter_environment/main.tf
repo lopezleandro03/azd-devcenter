@@ -3,9 +3,9 @@
 # Environment type definition
 ##############################
 resource "azapi_resource" "environment_type_definition" {
-  type = "Microsoft.DevCenter/projects/environmentTypes@2023-04-01"
-  name = var.environment_name
-  location = var.location
+  type      = "Microsoft.DevCenter/projects/environmentTypes@2023-04-01"
+  name      = var.environment_name
+  location  = var.location
   parent_id = var.project_id
   identity {
     type = "SystemAssigned"
@@ -18,7 +18,7 @@ resource "azapi_resource" "environment_type_definition" {
       #   roles = {"Owner" = []}
       # }
       deploymentTargetId = "/subscriptions/${var.target_subscription_id}"
-      status = "Enabled"
+      status             = "Enabled"
       # userRoleAssignments = {}
     }
   })
@@ -36,7 +36,7 @@ resource "time_sleep" "wait_30_seconds" {
 data "azuread_service_principal" "environment_type_smi" {
   display_name = "${var.project_name}/environmentTypes/${var.environment_name}"
 
-  depends_on = [ time_sleep.wait_30_seconds ]
+  depends_on = [time_sleep.wait_30_seconds]
 }
 
 ##############################
@@ -55,9 +55,9 @@ resource "azurerm_role_assignment" "project_owner_sub" {
 # Allow Environment Type
 ##############################
 data "azapi_resource" "allowed_env_types" {
-  type = "Microsoft.DevCenter/projects/allowedEnvironmentTypes@2023-04-01"
-  name = var.environment_name
+  type      = "Microsoft.DevCenter/projects/allowedEnvironmentTypes@2023-04-01"
+  name      = var.environment_name
   parent_id = var.project_id
 
-  depends_on = [ azapi_resource.environment_type_definition ]
+  depends_on = [azapi_resource.environment_type_definition]
 }

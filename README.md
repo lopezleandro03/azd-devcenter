@@ -62,10 +62,19 @@ $env:GIT_REPO="<git_repo>" # Use 'deployment-environments' to use Microsoft offi
 2. Run `azd up` from the root folder of this repository and follow the prompts to bootstrap your DevCenter.
 3. Go to the [Developer Portal](https://devportal.microsoft.com) and start creating environments.
 
+## Developer Experience
+
+Once Azure Deployment Environments is deployed and configured, you can start creating environments in the Developer Portal. The following screenshot shows the Developer Portal with the sample environments and projects deployed with this repo.
+
+![Developer Portal](./assets/devportal.png)
+
+Alternatively, you can deploy environments using the Azure CLI. Learn more about the [Azure Deployment Environments CLI](https://learn.microsoft.com/en-us/azure/deployment-environments/how-to-create-access-environments) or [CI/CD pipelines](https://learn.microsoft.com/en-us/azure/deployment-environments/tutorial-deploy-environments-in-cicd-github).
+
 ## Resources
 
 - [Azure Deployment Environments Docs](https://learn.microsoft.com/en-us/azure/deployment-environments/overview-what-is-azure-deployment-environments)
 - [Azure Deployment Environments GitHub repo](link_to_sample_templates_repository)
+- [Microsoft Build 2023 session: Self-serve app infrastructure using Azure Deployment Environments](https://build.microsoft.com/en-US/sessions/e102bb71-f8ef-4538-9a59-158ec6f442b6?source=sessions)
 
 ## Contributing
 
