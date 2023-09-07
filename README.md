@@ -1,4 +1,4 @@
-# Bootstrap DevCenter with Azure Deployment Environments
+# Terraform template to bootstrap Azure Deployment Environments
 
 Azure Deployment Environments empowers development teams to quickly and easily spin up app infrastructure with project-based templates that establish consistency and best practices while maximizing security. This on-demand access to secure environments accelerates the stages of the software development lifecycle in a compliant and cost-efficient way.
 

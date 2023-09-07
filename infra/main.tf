@@ -32,6 +32,11 @@ locals {
       name        = "Team-three-${random_string.value.result}"
       description = "Project used by Team-three to manage their environments"
       members     = [data.azurerm_client_config.current.object_id] # make the current user a member of the project, add your devs here
+    },
+    "Team-four" = {
+      name        = "Team-four-${random_string.value.result}"
+      description = "Project used by Team-four to manage their environments"
+      members     = [data.azurerm_client_config.current.object_id] # make the current user a member of the project, add your devs here
     }
   }
 
@@ -51,7 +56,7 @@ locals {
       name                   = "et-ephemeral-24hs"
       description            = "This environment type will destroy environments after 24hs" # This automation could be set using GitHub Actions and the Azure CLI for DevCenter.
       target_subscription_id = data.azurerm_client_config.current.subscription_id
-    },
+    }
   }
 
   tags = { azd-env-name : var.environment_name }
@@ -130,18 +135,6 @@ module "key_vault" {
       value       = var.github_token
     }
   }
-}
-
-##############################
-# RBAC assignment: grant DevCenter system managed identity Owner access to the subscription
-#   - Identity: dev center system managed identity
-#   - Role: Owner
-#   - Scope: Subscription
-##############################
-resource "azurerm_role_assignment" "devcenter_sai_sub_owner_sai" {
-  scope                = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
-  role_definition_name = "Owner"
-  principal_id         = azapi_resource.devcenter.identity[0].principal_id
 }
 
 ##############################
