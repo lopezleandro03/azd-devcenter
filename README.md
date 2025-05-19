@@ -43,6 +43,8 @@ Make sure you have the following tools installed:
 ## Deploy with Azure Developer CLI
 
 > Note: Before starting, create a GitHub PAT with `repo` scope to connect to a GitHub repository as a catalog. Learn more about [creating a GitHub PAT](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token).
+>
+> **Important**: You must be logged in with the Azure CLI before running `azd up`. Use `az login` to sign in to Azure.
 
 1. Define the following environment variables which will be used to link a GitHub repository as a DevCenter catalog. A catalog is the repository that contains the environment definitions as infrastructure as code templates. Use the [Azure official repo for Azure Deployment Environments](https://github.com/Azure/deployment-environments) to import sample environments.
 

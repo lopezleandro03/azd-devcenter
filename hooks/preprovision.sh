@@ -16,4 +16,13 @@ if [ -z "$GITHUB_TOKEN" ]; then
     exit 1
 fi
 
+# Check if Azure CLI is logged in
+echo "Checking Azure CLI login status..."
+if ! az account show &> /dev/null; then
+    echo "ERROR: You are not logged in to Azure CLI. Please log in with 'az login' first."
+    echo "Terraform requires access to your Azure subscription."
+    exit 1
+fi
+
+echo "Azure CLI is logged in."
 echo "Environment variables are set."
