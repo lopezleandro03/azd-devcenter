@@ -8,6 +8,6 @@ hooks:
     windows:
       run: ./hooks/preprovision.ps1
     posix:
-      run: ./hooks/preprovision.sh
+      run: chmod +x ./hooks/preprovision.sh && ./hooks/preprovision.sh
 infra:
   provider: terraform

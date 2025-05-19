@@ -20,4 +20,21 @@ if ($null -eq $env:GITHUB_TOKEN) {
     exit 1
 }
 
+# Check if Azure CLI is logged in
+Write-Information "Checking Azure CLI login status..."
+try {
+    $null = az account show 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "ERROR: You are not logged in to Azure CLI. Please log in with 'az login' first."
+        Write-Error "Terraform requires access to your Azure subscription."
+        exit 1
+    }
+}
+catch {
+    Write-Error "ERROR: You are not logged in to Azure CLI. Please log in with 'az login' first."
+    Write-Error "Terraform requires access to your Azure subscription."
+    exit 1
+}
+
+Write-Information "Azure CLI is logged in."
 Write-Information "Environment variables are set."
