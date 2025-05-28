@@ -27,7 +27,7 @@ This repo will deploy several Azure resources and configure DevCenter to let you
 
 The projects and environments defined serve as inspiration to start using Azure Deployment Environments, you can delete them and create your own.
 
-All azure resources are defined as code using Terraform, the environment definition can be found in the `infra` folder.
+All Azure resources are defined as code using Terraform (in the `infra` folder) or Bicep (in the `infra-bicep` folder). You can choose which IaC tool to use for deployment.
 
 Let's get started!
 
@@ -37,8 +37,9 @@ Make sure you have the following tools installed:
 
 1. [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 2. [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/)
-3. [Terraform CLI](https://learn.hashicorp.com/tutorials/terraform/install-cli)
-4. An Azure subscription with at least `Owner` RBAC role assigned to the deployment identity
+3. [Terraform CLI](https://learn.hashicorp.com/tutorials/terraform/install-cli) (if using Terraform deployment)
+4. [Azure Bicep CLI](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/install) (if using Bicep deployment)
+5. An Azure subscription with at least `Owner` RBAC role assigned to the deployment identity
 
 ## Deploy with Azure Developer CLI
 
@@ -62,7 +63,55 @@ $env:GITHUB_REPO="<github_repo>" # Use 'deployment-environments' to use Microsof
 ```
 
 2. Run `azd up` from the root folder of this repository and follow the prompts to bootstrap your DevCenter.
+   
+   By default, the Terraform provider will be used. To use Bicep instead, modify the `azure.yaml` file and change the provider from `terraform` to `bicep`:
+   
+   ```yaml
+   infra:
+     provider: bicep
+     path: infra-bicep
+   ```
+
 3. Go to the [Developer Portal](https://devportal.microsoft.com) and start creating environments.
+3. Go to the [Developer Portal](https://devportal.microsoft.com) and start creating environments.
+
+## Deploy with Bicep Directly
+
+If you prefer to deploy using Bicep directly instead of the Azure Developer CLI, follow these steps:
+
+1. Set the GitHub token and other parameters in the `infra-bicep/main.parameters.json` file.
+
+2. Create a resource group for deployment:
+```bash
+az group create --name myDevCenterRG --location eastus
+```
+
+3. Deploy the Bicep template:
+```bash
+az deployment group create \
+  --resource-group myDevCenterRG \
+  --template-file infra-bicep/main.bicep \
+  --parameters infra-bicep/main.parameters.json \
+  --parameters githubToken=<your_github_token>
+```
+
+4. Go to the [Developer Portal](https://devportal.microsoft.com) and start creating environments.
+
+## Switching Between Terraform and Bicep Deployment
+
+This repository supports both Terraform and Bicep for deploying the Azure DevCenter resources. You can easily switch between the two:
+
+### To use Terraform (default)
+```bash
+# Ensure you are using the default azure.yaml
+cp azure.yaml azure.yaml.bicep.bak # backup bicep version if needed
+```
+
+### To use Bicep
+```bash
+# Switch to the Bicep version of azure.yaml
+cp azure.yaml.bicep azure.yaml
+```
 
 ## Developer Experience
 

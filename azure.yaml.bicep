@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/alpha/azure.yaml.json
+
+name: devcenter-ade-starter
+metadata:
+  template: devcenter-ade-starter@0.0.1-beta
+hooks:
+  preprovision:
+    windows:
+      run: ./hooks/preprovision.ps1
+      interactive: true
+    posix:
+      run: ./hooks/preprovision.sh && ./hooks/azd-bicep-hook.sh
+      interactive: true
+infra:
+  provider: bicep
+  path: infra-bicep
